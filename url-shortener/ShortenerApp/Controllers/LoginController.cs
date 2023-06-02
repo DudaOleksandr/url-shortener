@@ -56,7 +56,7 @@ public class LoginController : ControllerBase
         
         var roles = await _userManager.GetRolesAsync(user);
         
-        claims.Add(new Claim(ClaimTypes.Role, roles.FirstOrDefault() ?? UserRoles.DefaultRole));
+        claims.Add(new Claim(ClaimTypes.Role, roles.FirstOrDefault() ?? UserRoles.UserRole));
 
         //TODO get key from appsettings.json
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("a secret that needs to be at least 16 characters long"));

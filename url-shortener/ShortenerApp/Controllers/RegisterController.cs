@@ -35,7 +35,7 @@ public class RegisterController : ControllerBase
         }
         else
         {
-            await _userManager.AddToRoleAsync(user, UserRoles.DefaultRole);
+            await _userManager.AddToRoleAsync(user, UserRoles.UserRole);
         }
 
         return Ok();

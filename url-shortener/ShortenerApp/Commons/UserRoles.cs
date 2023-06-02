@@ -3,5 +3,5 @@
 public static class UserRoles
 {
     public const string AdminRole = "Admin";
-    public const string DefaultRole = "Default";
+    public const string UserRole = "User";
 }

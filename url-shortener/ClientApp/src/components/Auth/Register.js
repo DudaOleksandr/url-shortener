@@ -9,6 +9,7 @@ export class Register extends Component {
         this.state = {
             username: '',
             password: '',
+            is_admin: false,
             errorMessage: ''
         };
     }
@@ -17,13 +18,19 @@ export class Register extends Component {
         this.setState({ [e.target.name]: e.target.value });
     };
 
-    handleLogin = async (e) => {
+    handleCheckboxChange = (e) => {
+        this.setState({ [e.target.name]: e.target.checked });
+    };
+
+    handleRegister = async (e) => {
         e.preventDefault();
 
         try {
+            
             const response = await axios.post(API + 'register', {
                 username: this.state.username,
-                password: this.state.password
+                password: this.state.password,
+                isAdmin: this.state.is_admin
             });
 
             // Assuming the server returns a token upon successful login
@@ -39,32 +46,38 @@ export class Register extends Component {
     };
 
     render() {
-        const { username, password, errorMessage } = this.state;
+        const { username, password, is_admin, errorMessage } = this.state;
 
         return (
             <div>
                 <h2>Register</h2>
                 {errorMessage && <div>{errorMessage}</div>}
-                <form onSubmit={this.handleLogin}>
-                    <div>
-                        <label>Username:</label>
+                <form onSubmit={this.handleRegister}>
+                    <div className="container-sm">
+                        <label className="p-2">Username:</label>
                         <input
                             type="text"
                             name="username"
                             value={username}
                             onChange={this.handleInputChange}
-                            required
-                        />
+                            required/>
                     </div>
-                    <div>
-                        <label>Password:</label>
+                    <div className="container-sm">
+                        <label className="p-2">Password:</label>
                         <input
                             type="password"
                             name="password"
                             value={password}
                             onChange={this.handleInputChange}
-                            required
-                        />
+                            required/>
+                    </div>
+                    <div className="container-sm">
+                        <label className="p-2">Is admin:</label>
+                        <input
+                            type="checkbox"
+                            name="is_admin"
+                            defaultChecked={is_admin}
+                            onChange={this.handleCheckboxChange}/>
                     </div>
                     <button type="submit">Register</button>
                 </form>
