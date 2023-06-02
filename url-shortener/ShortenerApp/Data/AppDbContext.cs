@@ -1,6 +1,13 @@
-﻿namespace url_shortener.ShortenerApp.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using url_shortener.ShortenerApp.Models.Entities;
 
-public class AppDbContext
+namespace url_shortener.ShortenerApp.Data;
+
+public class AppDbContext : DbContext
 {
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
+    }
     
+    public DbSet<User> Users { get; set; }
 }
