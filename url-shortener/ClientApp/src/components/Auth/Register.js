@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import axios from 'axios';
-import {API} from '../../commons/Constants'
-import decodeJWT from "jwt-decode"
-export class Login extends Component {
-    static displayName = Login.name;
+import {API} from "../../commons/Constants";
+
+export class Register extends Component {
+    static displayName = Register.name;
     constructor(props) {
         super(props);
         this.state = {
@@ -21,30 +21,20 @@ export class Login extends Component {
         e.preventDefault();
 
         try {
-            const response = await axios.post(API + 'login', {
+            const response = await axios.post(API + 'register', {
                 username: this.state.username,
                 password: this.state.password
             });
-            
+
             // Assuming the server returns a token upon successful login
             const token = response.data.token;
 
             // Store the token in localStorage or any other desired method
             localStorage.setItem('token', token);
 
-            // Decode the token to extract the claims
-            const decodedToken = decodeJWT(token);
-            
-            console.log(decodedToken);
-
-            // Extract the roles from the claims
-            const roles = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-            
-            console.log(roles);
-
             // Redirect or perform any other actions after successful login
         } catch (error) {
-            this.setState({ errorMessage: 'Invalid username or password ' + error});
+            this.setState({ errorMessage: 'Invalid username or password ' + error });
         }
     };
 
@@ -53,7 +43,7 @@ export class Login extends Component {
 
         return (
             <div>
-                <h2>Login</h2>
+                <h2>Register</h2>
                 {errorMessage && <div>{errorMessage}</div>}
                 <form onSubmit={this.handleLogin}>
                     <div>
@@ -76,7 +66,7 @@ export class Login extends Component {
                             required
                         />
                     </div>
-                    <button type="submit">Login</button>
+                    <button type="submit">Register</button>
                 </form>
             </div>
         );
