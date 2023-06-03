@@ -1,6 +1,7 @@
 ﻿import React, { Component } from 'react';
 import axios from 'axios';
 import {API} from "../../commons/Constants";
+import { useNavigate } from "react-router-dom";
 
 export class Register extends Component {
     static displayName = Register.name;
@@ -32,6 +33,12 @@ export class Register extends Component {
                 password: this.state.password,
                 isAdmin: this.state.is_admin
             });
+
+            localStorage.setItem('userName', this.state.username);
+
+            // Redirect after successful register
+            const navigate = useNavigate();
+            navigate('/');
 
             // Assuming the server returns a token upon successful login
             const token = response.data.token;

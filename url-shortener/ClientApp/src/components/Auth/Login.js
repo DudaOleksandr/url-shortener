@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {API} from '../../commons/Constants'
 import decodeJWT from "jwt-decode"
+
 export class Login extends Component {
     static displayName = Login.name;
     constructor(props) {
@@ -26,23 +28,12 @@ export class Login extends Component {
                 password: this.state.password
             });
             
-            // Assuming the server returns a token upon successful login
-            const token = response.data.token;
-
-            // Store the token in localStorage or any other desired method
-            localStorage.setItem('token', token);
-
-            // Decode the token to extract the claims
-            const decodedToken = decodeJWT(token);
+            localStorage.setItem('userName', this.state.username);
             
-            console.log(decodedToken);
-
-            // Extract the roles from the claims
-            const roles = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+            // Redirect after successful login
+            const navigate = useNavigate();
+            navigate('/home');
             
-            console.log(roles);
-
-            // Redirect or perform any other actions after successful login
         } catch (error) {
             this.setState({ errorMessage: 'Invalid username or password ' + error});
         }

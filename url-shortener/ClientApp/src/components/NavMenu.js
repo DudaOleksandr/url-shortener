@@ -8,6 +8,9 @@ export class NavMenu extends Component {
 
   constructor (props) {
     super(props);
+    this.state = {
+      userName: localStorage.getItem('userName')
+    };
 
     this.toggleNavbar = this.toggleNavbar.bind(this);
     this.state = {
@@ -22,6 +25,8 @@ export class NavMenu extends Component {
   }
 
   render() {
+    const { userName } = this.state;
+    
     return (
       <header>
         <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container light>
@@ -43,6 +48,12 @@ export class NavMenu extends Component {
               </NavItem>
               <NavItem>
                 <NavLink tag={Link} className="text-dark" to="/register">Register</NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink tag={Link} className="text-dark" to="/short-urls">Short Urls</NavLink>
+              </NavItem>
+              <NavItem>
+                Welcome, {userName}
               </NavItem>
             </ul>
           </Collapse>

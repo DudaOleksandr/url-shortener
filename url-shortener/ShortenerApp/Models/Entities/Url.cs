@@ -9,7 +9,7 @@ public class Url
     
     public string LongUrl { get; set; }
     
-    public string ShortUrl { get; set; }
+    public string? ShortUrl { get; set; }
     
     public DateTime CreatedDate { get; set; }
     
