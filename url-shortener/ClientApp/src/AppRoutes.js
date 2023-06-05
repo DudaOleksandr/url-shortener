@@ -4,6 +4,7 @@ import Register from "./components/Auth/Register";
 import ShortUrlRedirect from "./components/ShortUrl/ShortUrlRedirect";
 import ShortUrls from "./components/ShortUrl/ShortUrl";
 import Info from "./components/ShortUrl/Info";
+import About from "./components/About/About";
 
 const AppRoutes = [
   {
@@ -29,6 +30,10 @@ const AppRoutes = [
   {
     path: `/redirect/:id`,
     element: <ShortUrlRedirect />
+  },
+  {
+    path: `/about`,
+    element: <About />
   }
 ];
 
