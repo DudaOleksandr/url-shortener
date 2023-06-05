@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using url_shortener.ShortenerApp.Commons;
 using url_shortener.ShortenerApp.Data;
 using url_shortener.ShortenerApp.Interfaces;
 using url_shortener.ShortenerApp.Models.Entities;
@@ -21,6 +22,8 @@ builder.Services.AddIdentity<User, IdentityRole>()
 
 
 builder.Services.AddTransient<IUrlShortenerService, UrlShortenerService>();
+builder.Services.AddSingleton<JwtUtils>();
+
 builder.Services.AddControllers();
 builder.Services.AddCors();
 

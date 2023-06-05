@@ -10,17 +10,19 @@ public class UrlShortenerService : IUrlShortenerService
     {
         _hashIds = new Hashids(configuration["HashId:Salt"]);
     }
-
-    /// <summary>
-    /// Creates short url version based on long version
-    /// </summary>
-    /// <returns>Short url version</returns>
+    
+    /// <inheritdoc />
     public string GetShortUrlToken(int id)
     {
         //Possible additional logic, hashing in separate method 
         return CreateHash(id);
     }
     
+    /// <summary>
+    /// Creates hash using id
+    /// </summary>
+    /// <param name="input">id</param>
+    /// <returns>Hashed id</returns>
     private string CreateHash(int input)
     {
         return _hashIds.Encode(input); 

@@ -1,9 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using url_shortener.ShortenerApp.Commons;
 using url_shortener.ShortenerApp.Models.Dto;
 using url_shortener.ShortenerApp.Models.Entities;
@@ -16,13 +12,13 @@ public class LoginController : ControllerBase
 {
     private readonly SignInManager<User> _signInManager;
     private readonly UserManager<User> _userManager;
-    private readonly IConfiguration _configuration;
+    private readonly JwtUtils _jwtUtils;
 
-    public LoginController(SignInManager<User> signInManager, UserManager<User> userManager, IConfiguration configuration)
+    public LoginController(SignInManager<User> signInManager, UserManager<User> userManager, JwtUtils jwtUtils)
     {
         _signInManager = signInManager;
         _userManager = userManager;
-        _configuration = configuration;
+        _jwtUtils = jwtUtils;
     }
     
     /// <summary>
@@ -45,42 +41,11 @@ public class LoginController : ControllerBase
 
         if (!result.Succeeded) return Unauthorized("Invalid username or password");
         
+        var roles = await _userManager.GetRolesAsync(user);
+
         // Authentication successful, generate and return the authentication token
-        var token = await GenerateToken(user);
+        var token =  _jwtUtils.GenerateToken(user, roles);
 
         return Ok(new { Token = token });
-    }
-
-
-    /// <summary>
-    /// Generate and return the authentication token (using JWT)
-    /// </summary>
-    /// <param name="user">User entity, containing info about the user that is about to login</param>
-    /// <returns>Jwt token</returns>
-    private async Task<string> GenerateToken(User user)
-    {
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, user.Id),
-            new(ClaimTypes.Name, user.UserName ?? string.Empty)
-        };
-        
-        var roles = await _userManager.GetRolesAsync(user);
-        
-        // Simplified logic, getting only first role, assuming that user will have only one
-        claims.Add(new Claim(ClaimTypes.Role, roles.FirstOrDefault() ?? UserRoles.UserRole));
-        
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]));
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            _configuration["Jwt:Issuer"],
-            _configuration["Jwt:Audience"],
-            claims,
-            DateTime.UtcNow.AddHours(2),
-            signingCredentials: credentials
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

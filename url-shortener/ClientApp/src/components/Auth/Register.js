@@ -1,94 +1,111 @@
-﻿import React, { Component } from 'react';
+﻿import React, { useState } from 'react';
 import axios from 'axios';
-import {API} from "../../commons/Constants";
-import { useNavigate } from "react-router-dom";
+import { API } from '../../commons/Constants';
+import { useNavigate } from 'react-router-dom';
+import {Alert, Button, Col, Form} from "react-bootstrap";
 
-export class Register extends Component {
-    static displayName = Register.name;
-    constructor(props) {
-        super(props);
-        this.state = {
-            username: '',
-            password: '',
-            is_admin: false,
-            errorMessage: ''
-        };
-    }
+const Register = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [is_admin, setIsAdmin] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const navigate = useNavigate();
 
-    handleInputChange = (e) => {
-        this.setState({ [e.target.name]: e.target.value });
-    };
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
 
-    handleCheckboxChange = (e) => {
-        this.setState({ [e.target.name]: e.target.checked });
-    };
-
-    handleRegister = async (e) => {
-        e.preventDefault();
-
-        try {
-            
-            const response = await axios.post(API + 'register', {
-                username: this.state.username,
-                password: this.state.password,
-                isAdmin: this.state.is_admin
-            });
-
-            localStorage.setItem('userName', this.state.username);
-
-            // Redirect after successful register
-            const navigate = useNavigate();
-            navigate('/');
-
-            // Assuming the server returns a token upon successful login
-            const token = response.data.token;
-
-            // Store the token in localStorage or any other desired method
-            localStorage.setItem('token', token);
-
-            // Redirect or perform any other actions after successful login
-        } catch (error) {
-            this.setState({ errorMessage: 'Invalid username or password ' + error });
+        if (name === 'username') {
+            setUsername(value);
+        } else if (name === 'password') {
+            setPassword(value);
         }
     };
 
-    render() {
-        const { username, password, is_admin, errorMessage } = this.state;
+    const handleCheckboxChange = (e) => {
+        if (e.target.name === 'is_admin') {
+            setIsAdmin(e.target.checked);
+        }
+    };
 
-        return (
-            <div>
-                <h2>Register</h2>
-                {errorMessage && <div>{errorMessage}</div>}
-                <form onSubmit={this.handleRegister}>
-                    <div className="container-sm">
-                        <label className="p-2">Username:</label>
-                        <input
+    const handleLogin = async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await axios.post(`${API}/register`, {
+                username: username,
+                password: password,
+                IsAdmin: is_admin,
+            });
+            if(response.status === 200){
+                setSuccessMessage('Register successful!');
+                setUsername('');
+                setPassword('');
+                setTimeout(() => {
+                    setSuccessMessage('');
+                    navigate('/login');
+                }, 2000);
+            }
+            
+        } catch (error) {
+            setErrorMessage('Invalid username or password');
+        }
+    };
+
+    return (
+        <div>
+            <h2>Register</h2>
+            {errorMessage && (
+                <Alert variant="danger" onClose={() => setErrorMessage('')} dismissible>
+                    {errorMessage}
+                </Alert>
+            )}
+            {successMessage && (
+                <Alert variant="success" onClose={() => setSuccessMessage('')} dismissible>
+                    {successMessage}
+                </Alert>
+            )}
+            
+            <Form onSubmit={handleLogin}>
+                <Form.Group controlId="username">
+                    <Form.Label>Username:</Form.Label>
+                    <Col xs={12} sm={6} md={4} lg={3}>
+                        <Form.Control
                             type="text"
                             name="username"
                             value={username}
-                            onChange={this.handleInputChange}
-                            required/>
-                    </div>
-                    <div className="container-sm">
-                        <label className="p-2">Password:</label>
-                        <input
+                            onChange={handleInputChange}
+                            required
+                            size="md"
+                        />
+                    </Col>
+                </Form.Group>
+                <Form.Group controlId="password">
+                    <Form.Label>Password:</Form.Label>
+                    <Col xs={12} sm={6} md={4} lg={3}>
+                        <Form.Control
                             type="password"
                             name="password"
                             value={password}
-                            onChange={this.handleInputChange}
-                            required/>
-                    </div>
-                    <div className="container-sm">
-                        <label className="p-2">Is admin:</label>
-                        <input
-                            type="checkbox"
-                            name="is_admin"
-                            defaultChecked={is_admin}
-                            onChange={this.handleCheckboxChange}/>
-                    </div>
-                    <button type="submit">Register</button>
-                </form>
-            </div>
-        );
-    }
-}
+                            onChange={handleInputChange}
+                            required
+                            size="md"
+                        />
+                    </Col>
+                </Form.Group>
+                <Form.Group controlId="is_admin">
+                    <Form.Check
+                        type="checkbox"
+                        name="is_admin"
+                        label="Is admin"
+                        defaultChecked={is_admin}
+                        onChange={handleCheckboxChange}
+                    />
+                </Form.Group>
+                <Button variant="primary" type="submit" className="my-2">Register</Button>
+            </Form>
+        </div>
+    );
+};
+
+export default Register;

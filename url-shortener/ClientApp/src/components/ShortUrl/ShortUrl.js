@@ -1,105 +1,122 @@
-import React, { Component } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {API} from "../../commons/Constants";
-import { Table, Button, Form, InputGroup  } from 'react-bootstrap';
+import { API } from '../../commons/Constants';
+import {Table, Button, Form, InputGroup, Alert, Row, Col} from 'react-bootstrap';
 
-export class ShortUrls extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            shortUrls: [],
-            newUrl: '',
-            error: '',
-        };
-    }
+const ShortUrls = () => {
+    const [shortUrls, setShortUrls] = useState([]);
+    const [newUrl, setNewUrl] = useState('');
+    const [error, setError] = useState('');
 
-    componentDidMount() {
-        this.fetchShortUrls();
-    }
+    useEffect(() => {
+        fetchShortUrls();
+    }, []);
 
-    fetchShortUrls = async () => {
+    const fetchShortUrls = async () => {
         try {
-            const response = await axios.get(API + 'shorturl');
-            this.setState({ shortUrls: response.data });
+            const response = await axios.get(`${API}/shorturl`);
+            setShortUrls(response.data);
         } catch (error) {
-            this.setState({ shortUrls: [] });
-            console.error('Error fetching short URLs:', error);
+            setShortUrls([]);
+            setError(`Error fetching URLs`);
+            
         }
     };
 
-    handleDelete = async (id) => {
+    const handleDelete = async (id) => {
         try {
-            await axios.delete(API + `shorturl/${id}`);
-            await this.fetchShortUrls();
+            await axios.delete(`${API}/shorturl/${id}`);
+            await fetchShortUrls();
         } catch (error) {
-            console.error('Error deleting short URL:', error);
+            setError(`Error deleting URL: ${id}`);
         }
     };
 
-    handleAddUrl = async () => {
+    const handleDeleteAll = async () => {
         try {
-            const { newUrl } = this.state;
-            /*TODO Add created by*/
-            const response = await axios.post(API + 'shorturl', { originalUrl: newUrl, creatorName: "Test" });
-            this.setState({ newUrl: '', error: '' });
-            await this.fetchShortUrls();
+            await axios.delete(`${API}/shorturl`);
+            await fetchShortUrls();
         } catch (error) {
-            if (error.response && error.response.data && error.response.data.message) {
-                this.setState({ error: error.response.data.message });
-            } else {
-                console.error('Error adding short URL:', error);
-            }
+            setError('Error deleting all short URLs');
         }
     };
 
-    render() {
-        const { shortUrls, newUrl, error } = this.state;
+    const handleAddUrl = async () => {
+        try {
+            const response = await axios.post(`${API}/shorturl`, {
+                originalUrl: newUrl});
+            setNewUrl('');
+            setError('');
+            await fetchShortUrls();
+        } catch (error) {
+            setError('Error adding URL');
+        }
+    };
 
-        return (
-            <div>
-                <h1>Short URLs Table</h1>
+    return (
+        <div>
+            {error && (
+                <Alert variant="danger" onClose={() => setError('')} dismissible>
+                    {error}
+                </Alert>
+            )}
 
-                {error && <div>{error}</div>}
-
-                <Table striped bordered hover>
-                    <thead>
-                    <tr>
-                        <th>Original URL</th>
-                        <th>Short URL</th>
-                        <th>Created By</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {shortUrls.map((shortUrl) => (
-                        <tr key={shortUrl.id}>
-                            <td>{shortUrl.longUrl}</td>
-                            <td>
-                                <a href={window.location.origin +'/redirect/' + shortUrl.shortUrl}>{shortUrl.shortUrl}</a>
-                            </td>
-                            <td>{shortUrl.createdBy}</td>
-                            <td>
-                                <Button variant="danger" onClick={() => this.handleDelete(shortUrl.id)}>
-                                    Delete
-                                </Button>
-                            </td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </Table>
-
-                <div>
-                    <h2>Add new URL</h2>
-                    <InputGroup>
-                        <Form.Control
-                            type="text"
-                            value={newUrl}
-                            onChange={(e) => this.setState({ newUrl: e.target.value })}
-                        />
-                        <Button onClick={this.handleAddUrl}>Add</Button>
-                    </InputGroup>
-                </div>
+            <div className="mb-5">
+                <h2>Add new URL</h2>
+                <InputGroup>
+                    <Form.Control type="text" value={newUrl} onChange={(e) => 
+                        setNewUrl(e.target.value)} />
+                    <Button onClick={handleAddUrl}>Add</Button>
+                </InputGroup>
             </div>
-        );
-    }
-}
+
+            <Row className="mb-3">
+                <Col>
+                    <h2>Short URLs Table</h2>
+                </Col>
+                {shortUrls.length > 0 && (
+                    <Col className="d-flex justify-content-end">
+                        <Button variant="danger" onClick={handleDeleteAll}>
+                            Delete All
+                        </Button>
+                    </Col>
+                )}
+            </Row>
+
+            <Table striped bordered hover>
+                <thead>
+                <tr>
+                    <th>Original URL</th>
+                    <th>Short URL</th>
+                    <th>Info</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {shortUrls.map((shortUrl) => (
+                    <tr key={shortUrl.id}>
+                        <td>{shortUrl.longUrl}</td>
+                        <td>
+                            <a href={window.location.origin + '/redirect/' + shortUrl.shortUrl}>
+                                {window.location.origin + '/redirect/' + shortUrl.shortUrl}
+                            </a>
+                        </td>
+                        <td>
+                            <a href={window.location.origin + '/info/' + shortUrl.shortUrl}>
+                                {shortUrl.shortUrl}
+                            </a>
+                        </td>
+                        <td>
+                            <Button variant="danger" onClick={() => handleDelete(shortUrl.id)}>
+                                Delete
+                            </Button>
+                        </td>
+                    </tr>
+                ))}
+                </tbody>
+            </Table>
+        </div>
+    );
+};
+
+export default ShortUrls;

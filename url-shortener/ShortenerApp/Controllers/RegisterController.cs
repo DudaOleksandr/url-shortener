@@ -34,6 +34,7 @@ public class RegisterController : ControllerBase
         
         if (!result.Succeeded) return BadRequest(result.Errors);
         
+        //Add roles
         if (model.IsAdmin)
         {
             await _userManager.AddToRoleAsync(user, UserRoles.AdminRole);
@@ -43,6 +44,7 @@ public class RegisterController : ControllerBase
             await _userManager.AddToRoleAsync(user, UserRoles.UserRole);
         }
 
-        return Ok();
+        // Registration successful
+        return Ok(new { user.UserName, user.Id });
     }
 }
