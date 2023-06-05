@@ -17,6 +17,11 @@ public class RegisterController : ControllerBase
         _userManager = userManager;
     }
     
+    /// <summary>
+    /// Registers a user with the provided credentials.
+    /// </summary>
+    /// <param name="model">The register model containing the username and password.</param>
+    /// <returns>Result of registration.</returns>
     [HttpPost]
     public async Task<IActionResult> Register(RegisterDto model)
     {
@@ -29,6 +34,7 @@ public class RegisterController : ControllerBase
         
         if (!result.Succeeded) return BadRequest(result.Errors);
         
+        //Add roles
         if (model.IsAdmin)
         {
             await _userManager.AddToRoleAsync(user, UserRoles.AdminRole);
@@ -38,6 +44,7 @@ public class RegisterController : ControllerBase
             await _userManager.AddToRoleAsync(user, UserRoles.UserRole);
         }
 
-        return Ok();
+        // Registration successful
+        return Ok(new { user.UserName, user.Id });
     }
 }
